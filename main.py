@@ -2,6 +2,9 @@ from langchain_huggingface import HuggingFacePipeline
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
+import warnings
+
+warnings.filterwarnings("ignore")
 
 # 3. Initialize the text2text model
 model_id = "google/flan-t5-base"  # Lightweight text2text model
@@ -16,37 +19,20 @@ text2text_llm = HuggingFacePipeline.from_model_id(
         "repetition_penalty": 1.2
     }
 )
-
-# 4. Basic text generation example
-simple_prompt = "Translate English to French: Hello, how are you?"
-response = text2text_llm.invoke(simple_prompt)
-print("Basic Translation:", response)
-
-# 5. Advanced usage with LangChain templates
-template = """Convert the following {input_language} text to {output_language}: 
-{input_text}"""
-prompt = PromptTemplate(
-    input_variables=["input_language", "output_language", "input_text"],
-    template=template
-)
-
-# 6. Create a LangChain pipeline
-translation_chain = LLMChain(
-    llm=text2text_llm,
-    prompt=prompt
-)
-
-# 7. Execute the chain
-result = translation_chain.invoke({
-    "input_language": "English",
-    "output_language": "Spanish",
-    "input_text": "The weather is beautiful today"
-})
-
-print("\nStructured Translation:", result["text"])
-
 # 8. Question Answering Example
-qa_template = """Answer the question based on the context:
+qa_template = """Answer the question based on the context and following examples:
+
+Example 1:
+Context: LangChain supports integration with multiple LLM providers
+Question: What LLM providers does LangChain work with?
+Answer: LangChain works with various providers like OpenAI, HuggingFace, and Anthropic.
+
+Example 2:
+Context: Chains in LangChain can sequence models or use different prompting techniques
+Question: What are LangChain chains used for?
+Answer: Chains help sequence models and implement complex prompting strategies.
+
+Now answer this question:
 Context: {context}
 Question: {question}
 Answer:"""
@@ -67,3 +53,8 @@ qa_response = qa_chain.invoke({
 })
 
 print("\nQA Response:", qa_response["text"])
+
+prompt = "what is the capital of france?"
+response = text2text_llm.invoke(prompt)
+print(response)
+
